@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selezione Pacchetti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #1e1e2f;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #252539;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #ff6b6b;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
+            background: #33334d;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        select:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 5px #ff6b6b;
+        }
+
+        .addons {
+            margin-top: 20px;
+            display: none; /* Nasconde inizialmente */
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .addon-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #2e2e44;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .addon-item label {
+            margin: 0;
+        }
+
+        .summary {
+            margin-top: 20px;
+            padding: 10px;
+            background: #33334d;
+            border-radius: 4px;
+        }
+
+        .price {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffd166;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Seleziona il tuo Pacchetto</h1>
+        
+        <label for="packages">Pacchetto base:</label>
+        <select id="packages">
+            <option value="" disabled selected>Seleziona un pacchetto</option>
+            <option value="base" data-price="100">Base - €100</option>
+            <option value="standard" data-price="200">Standard - €200</option>
+            <option value="premium" data-price="300">Premium - €300</option>
+        </select>
+        
+        <div id="addons" class="addons">
+            <h2>Add-ons</h2>
+            <div id="addons-list"></div>
+        </div>
+        
+        <div id="summary" class="summary">
+            <h2>Riepilogo</h2>
+            <p class="price">Totale: €<span id="total">0</span></p>
+            <button id="confirm">Conferma</button>
+        </div>
+    </div>
+
+    <script>
+        const addonsData = {
+            base: [
+                { id: 1, name: "Social Media Setup", price: 50 },
+                { id: 2, name: "Logo Design", price: 80 }
+            ],
+            standard: [
+                { id: 3, name: "SEO Avanzato", price: 100 },
+                { id: 4, name: "Content Writing (5 articoli)", price: 150 }
+            ],
+            premium: [
+                { id: 5, name: "Campagna Social Ads", price: 200 },
+                { id: 6, name: "Piano Editoriale Completo", price: 300 }
+            ]
+        };
+
+        const packageSelect = document.getElementById("packages");
+        const addonsDiv = document.getElementById("addons");
+        const addonsList = document.getElementById("addons-list");
+        const totalPriceEl = document.getElementById("total");
+
+        let selectedAddons = [];
+        let basePrice = 0;
+
+        const renderAddons = (addons) => {
+            addonsList.innerHTML = "";
+            addons.forEach(addon => {
+                const div = document.createElement("div");
+                div.classList.add("addon-item");
+                div.innerHTML = `
+                    <label>
+                        <input type="checkbox" data-price="${addon.price}">
+                        ${addon.name} - €${addon.price}
+                    </label>
+                `;
+                addonsList.appendChild(div);
+            });
+        };
+
+        const updateTotal = () => {
+            const addonCheckboxes = addonsList.querySelectorAll("input[type='checkbox']");
+            selectedAddons = Array.from(addonCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => parseInt(cb.dataset.price));
+
+            const addonTotal = selectedAddons.reduce((sum, price) => sum + price, 0);
+            totalPriceEl.textContent = basePrice + addonTotal;
+        };
+
+        packageSelect.addEventListener("change", () => {
+            const selectedPackage = packageSelect.value;
+            basePrice = parseInt(packageSelect.options[packageSelect.selectedIndex].dataset.price);
+            addonsDiv.style.display = "block";
+            renderAddons(addonsData[selectedPackage]);
+            updateTotal();
+        });
+
+        addonsList.addEventListener("change", updateTotal);
+    </script>
+</body>
+</html>

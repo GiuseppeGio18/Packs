@@ -3,179 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selezione Pacchetti</title>
+    <title>CRM Studio Dentistico - MVP</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Montserrat', sans-serif;
-            background-color: #181818; /* Sfondo scuro Notion */
-            color: #ffffff;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #202020;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        h1, h2 {
-            text-align: center;
-            color: #ff6b6b;
-        }
-
-        label {
-            font-weight: 600;
-        }
-
-        select, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 4px;
-            background: #333333;
-            color: #ffffff;
-            cursor: pointer;
-        }
-
-        select:focus, button:focus {
-            outline: none;
-            box-shadow: 0 0 5px #ff6b6b;
-        }
-
-        .addons {
-            margin-top: 20px;
-            display: none; /* Nasconde inizialmente */
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .addon-item {
-            margin: 10px 0;
-            padding: 10px;
-            background: #282828;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .addon-item label {
-            margin: 0;
-        }
-
-        .summary {
-            margin-top: 20px;
-            padding: 10px;
-            background: #333333;
-            border-radius: 4px;
-        }
-
-        .price {
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #ffd166;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        body { font-family: 'Montserrat', sans-serif; margin:0; }
+        header { background:#0066cc; color:#fff; padding:10px; display:flex; justify-content:space-between; align-items:center; }
+        nav button { margin-right:5px; }
+        section { display:none; padding:20px; }
+        section.active { display:block; }
+        table { width:100%; border-collapse:collapse; }
+        th, td { border:1px solid #ccc; padding:5px; text-align:left; }
+        input, select, button { margin:5px 0; }
+        .card { display:inline-block; margin:10px; padding:10px; border:1px solid #ccc; border-radius:4px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Seleziona il tuo Pacchetto</h1>
-        
-        <label for="packages">Pacchetto base:</label>
-        <select id="packages">
-            <option value="" disabled selected>Seleziona un pacchetto</option>
-            <option value="base" data-price="100">Base - €100</option>
-            <option value="standard" data-price="200">Standard - €200</option>
-            <option value="premium" data-price="300">Premium - €300</option>
-        </select>
-        
-        <div id="addons" class="addons">
-            <h2>Add-ons</h2>
-            <div id="addons-list"></div>
-        </div>
-        
-        <div id="summary" class="summary">
-            <h2>Riepilogo</h2>
-            <p class="price">Totale: €<span id="total">0</span></p>
-            <button id="confirm">Conferma</button>
-        </div>
-    </div>
+<header>
+    <div><strong>CRM Studio Dentistico</strong></div>
+    <nav>
+        <button onclick="show('dashboard')">Dashboard</button>
+        <button onclick="show('agenda')">Agenda</button>
+        <button onclick="show('pazienti')">Pazienti</button>
+        <button onclick="show('marketing')">Marketing</button>
+        <button onclick="show('report')">Report</button>
+        <button onclick="show('impostazioni')">Impostazioni</button>
+    </nav>
+</header>
+<section id="dashboard" class="active">
+    <h2>Dashboard</h2>
+    <div class="card">Appuntamenti settimana: <span id="dashAppointments">0</span></div>
+    <div class="card">No-show: <span id="dashNoShow">0</span></div>
+    <div class="card">Pazienti totali: <span id="dashPatients">0</span></div>
+    <div class="card">Suggerimenti AI: <span id="dashAI">N/D</span></div>
+</section>
+<section id="agenda">
+    <h2>Agenda</h2>
+    <form onsubmit="addAppointment(event)">
+        <select id="apptPatient" required></select><br>
+        <input type="datetime-local" id="apptTime" required><br>
+        <button type="submit">Aggiungi</button>
+    </form>
+    <table>
+        <thead><tr><th>Paziente</th><th>Data/Ora</th><th>Stato</th><th>Azione</th></tr></thead>
+        <tbody id="apptTable"></tbody>
+    </table>
+</section>
+<section id="pazienti">
+    <h2>Pazienti</h2>
+    <form onsubmit="addPatient(event)">
+        <input id="patName" placeholder="Nome" required><br>
+        <input id="patPhone" placeholder="Telefono" required><br>
+        <label><input type="checkbox" id="consentMarketing"> Consenso Marketing</label><br>
+        <button type="submit">Aggiungi Paziente</button>
+    </form>
+    <table>
+        <thead><tr><th>Nome</th><th>Telefono</th><th>Marketing</th></tr></thead>
+        <tbody id="patientTable"></tbody>
+    </table>
+</section>
+<section id="marketing">
+    <h2>Marketing Manuale</h2>
+    <form onsubmit="sendMarketing(event)">
+        <select id="mktPatient" required></select><br>
+        <textarea id="mktMessage" placeholder="Messaggio" required></textarea><br>
+        <button type="submit">Invia</button>
+    </form>
+    <ul id="mktLog"></ul>
+</section>
+<section id="report">
+    <h2>Report</h2>
+    <p>Appuntamenti: <span id="reportAppointments">0</span></p>
+    <p>No-show: <span id="reportNoShow">0</span></p>
+</section>
+<section id="impostazioni">
+    <h2>Impostazioni</h2>
+    <p>Gestione utenti e template messaggi (MVP placeholder).</p>
+</section>
+<script>
+const patients = JSON.parse(localStorage.getItem('patients')||'[]');
+const appointments = JSON.parse(localStorage.getItem('appointments')||'[]');
 
-    <script>
-        const addonsData = {
-            base: [
-                { id: 1, name: "Social Media Setup", price: 50 },
-                { id: 2, name: "Logo Design", price: 80 }
-            ],
-            standard: [
-                { id: 3, name: "SEO Avanzato", price: 100 },
-                { id: 4, name: "Content Writing (5 articoli)", price: 150 }
-            ],
-            premium: [
-                { id: 5, name: "Campagna Social Ads", price: 200 },
-                { id: 6, name: "Piano Editoriale Completo", price: 300 }
-            ]
-        };
+function save(){
+    localStorage.setItem('patients',JSON.stringify(patients));
+    localStorage.setItem('appointments',JSON.stringify(appointments));
+    render();
+}
 
-        const packageSelect = document.getElementById("packages");
-        const addonsDiv = document.getElementById("addons");
-        const addonsList = document.getElementById("addons-list");
-        const totalPriceEl = document.getElementById("total");
+function render(){
+    // patient options
+    const apptSel = document.getElementById('apptPatient');
+    const mktSel = document.getElementById('mktPatient');
+    apptSel.innerHTML = '<option value="" disabled selected>Seleziona paziente</option>';
+    mktSel.innerHTML = apptSel.innerHTML;
+    patients.forEach((p,i)=>{
+        const opt=document.createElement('option');
+        opt.value=i; opt.textContent=p.name; apptSel.appendChild(opt);
+        const opt2=opt.cloneNode(true); mktSel.appendChild(opt2);
+    });
+    // patient table
+    const ptT = document.getElementById('patientTable'); ptT.innerHTML='';
+    patients.forEach(p=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${p.name}</td><td>${p.phone}</td><td>${p.consentMarketing?'Si':'No'}</td>`;
+        ptT.appendChild(tr);
+    });
+    // appointments table
+    const apT=document.getElementById('apptTable'); apT.innerHTML='';
+    appointments.forEach((a,i)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${patients[a.patient]?.name||''}</td><td>${new Date(a.time).toLocaleString()}</td><td>${a.status}</td><td><button onclick="markNoShow(${i})">No-show</button></td>`;
+        apT.appendChild(tr);
+    });
+    // dashboard + report
+    document.getElementById('dashAppointments').textContent=appointments.length;
+    const nos = appointments.filter(a=>a.status==='no-show').length;
+    document.getElementById('dashNoShow').textContent=nos;
+    document.getElementById('dashPatients').textContent=patients.length;
+    document.getElementById('dashAI').textContent = appointments.length<5?"Invita pazienti all'igiene" : "Tutto sotto controllo";
+    document.getElementById('reportAppointments').textContent=appointments.length;
+    document.getElementById('reportNoShow').textContent=nos;
+}
 
-        let selectedAddons = [];
-        let basePrice = 0;
+function addPatient(e){
+    e.preventDefault();
+    patients.push({name:patName.value, phone:patPhone.value, consentMarketing:consentMarketing.checked});
+    patName.value=''; patPhone.value=''; consentMarketing.checked=false; save();
+}
 
-        const renderAddons = (addons) => {
-            addonsList.innerHTML = "";
-            addons.forEach(addon => {
-                const div = document.createElement("div");
-                div.classList.add("addon-item");
-                div.innerHTML = `
-                    <label>
-                        <input type="checkbox" data-price="${addon.price}">
-                        ${addon.name} - €${addon.price}
-                    </label>
-                `;
-                addonsList.appendChild(div);
-            });
-        };
+function addAppointment(e){
+    e.preventDefault();
+    if(apptPatient.value==='') return;
+    appointments.push({patient:parseInt(apptPatient.value), time:apptTime.value, status:'prenotato'});
+    apptTime.value=''; apptPatient.value=''; save();
+}
 
-        const updateTotal = () => {
-            const addonCheckboxes = addonsList.querySelectorAll("input[type='checkbox']");
-            selectedAddons = Array.from(addonCheckboxes)
-                .filter(cb => cb.checked)
-                .map(cb => parseInt(cb.dataset.price));
+function markNoShow(i){
+    appointments[i].status='no-show'; save();
+}
 
-            const addonTotal = selectedAddons.reduce((sum, price) => sum + price, 0);
-            totalPriceEl.textContent = basePrice + addonTotal;
-        };
+function sendMarketing(e){
+    e.preventDefault();
+    const p=patients[mktPatient.value];
+    if(!p) return;
+    if(!p.consentMarketing){ alert('Nessun consenso marketing!'); return; }
+    const msg=mktMessage.value;
+    const li=document.createElement('li');
+    li.textContent=`Inviato a ${p.name}: ${msg}`;
+    document.getElementById('mktLog').appendChild(li);
+    mktMessage.value=''; mktPatient.value='';
+}
 
-        packageSelect.addEventListener("change", () => {
-            const selectedPackage = packageSelect.value;
-            basePrice = parseInt(packageSelect.options[packageSelect.selectedIndex].dataset.price);
-            addonsDiv.style.display = "block";
-            renderAddons(addonsData[selectedPackage]);
-            updateTotal();
-        });
+function show(id){
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
 
-        addonsList.addEventListener("change", updateTotal);
-    </script>
+render();
+</script>
 </body>
 </html>
